@@ -40,3 +40,5 @@ public class MyRejectedHandler {
                 executorService.submit(() -> convertToDB(line));
             }
         }*/
+
+//private static int corePoolSize = Runtime.getRuntime().availableProcessors();
