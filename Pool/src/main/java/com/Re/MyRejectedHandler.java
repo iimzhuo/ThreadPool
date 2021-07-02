@@ -11,7 +11,22 @@ import java.util.concurrent.TimeUnit;
 
 public class MyRejectedHandler {
     public static void main(String[] args) {
-
+        ExecutorService executorService = new ThreadPoolExecutor(
+                5,
+                10,
+                60,
+                TimeUnit.MINUTES,
+                new ArrayBlockingQueue<>(100),
+                (r, executor) -> {
+                    if (!executor.isShutdown()) {
+                        try {
+                            // 主线程将会被阻塞
+                            executor.getQueue().put(r);   //put方式添加，如果队列满了，那么就会阻塞主线程
+                        } catch (InterruptedException e) {
+                            // should not be interrupted
+                        }
+                    }
+                });
     }
 }
 
@@ -40,3 +55,5 @@ public class MyRejectedHandler {
                 executorService.submit(() -> convertToDB(line));
             }
         }*/
+
+//private static int corePoolSize = Runtime.getRuntime().availableProcessors();
