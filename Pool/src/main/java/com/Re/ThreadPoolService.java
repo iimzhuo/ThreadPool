@@ -3,18 +3,18 @@ package com.Re;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class ThreadPoolService {
     public static void main(String[] args) {
         ThreadPoolService service = new ThreadPoolService();
         //service.Add();
-        service.calculateByConcurrentHashMap();
-        //service.calculateByHashMap();
+        //service.calculateByConcurrentHashMap();
+        service.calculateByHashMap();
     }
+
+    public static ThreadPoolExecutor threadPoolExecutor=new ThreadPoolExecutor(10,10,0,
+            TimeUnit.SECONDS,new LinkedBlockingDeque<>(1000));
 
     /**
      * 采用HashMap进行单词数量统计
@@ -27,8 +27,7 @@ public class ThreadPoolService {
             for(int k=0;k<arr.length;k++){
                 String str=arr[k];
                 threadPool.execute(()->{
-                    increaseMap(str);
-                    latch.countDown();
+                    increaseMap(str,latch);
                 });
             }
         }
@@ -81,10 +80,11 @@ public class ThreadPoolService {
 
     public Map<String,Long> map=new HashMap<>();
 
-    public synchronized void increaseMap(String url){
+    public synchronized void increaseMap(String url,CountDownLatch latch){
         Long val=map.get(url);
         val=val==null?1:val+1;
         map.put(url,val);
+        latch.countDown();
     }
 
     public  synchronized void  increase(String url){
